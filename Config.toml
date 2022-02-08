@@ -1,0 +1,4 @@
+[Server]
+port = "7878"
+ip = "127.0.0.1"
+threads = 16

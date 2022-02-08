@@ -1,0 +1,23 @@
+[php]
+extension = ".php"
+command = "php"
+input_type = "pipe"
+priority = 4
+
+[txt]
+extension = ".txt"
+command = "cat"
+input_type = "pipe"
+priority = 3
+
+[figlet]
+extension = ".fig"
+command = "figlet"
+input_type = "pipe"
+priority = 2
+
+[rant]
+extension = ".rant"
+command = "rant"
+input_type = "file"
+priority = 1
