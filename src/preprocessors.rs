@@ -1,4 +1,4 @@
-use std::{path::Path, fs::File};
+use std::{path::Path, fs::File, collections::HashMap};
 
 use subprocess::{Exec, Redirection};
 
@@ -23,7 +23,7 @@ impl Preprocessor {
         Preprocessor {extension,command,method,priority}
     }
 
-    pub fn process(&self, file_path: String) -> Result<String,PreprocessorErr> {
+    pub fn process(&self, file_path: String, _args: &HashMap<String,String> ) -> Result<String,PreprocessorErr> {
         let file = File::open(&file_path);
         let file_handle;
         match file {
@@ -86,10 +86,10 @@ impl PreprocessorList {
         None
     }
 
-    pub fn process(&self, file_path: String) -> Result<String,PreprocessorErr>{
+    pub fn process(&self, file_path: String, args: &HashMap<String,String> ) -> Result<String,PreprocessorErr>{
         for proc in self.processors.iter() {
             if proc.does_apply(file_path.clone()) {
-                return proc.process(file_path);
+                return proc.process(file_path,args);
             }
         }
         return Err(PreprocessorErr::NoProcessor);

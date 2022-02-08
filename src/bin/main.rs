@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs;
 use std::io::prelude::*;
 use std::net::TcpListener;
@@ -54,12 +55,13 @@ fn handle_connection(mut stream: TcpStream, interpeters: Arc<PreprocessorList>) 
     stream.read(&mut buffer).unwrap();
 
     let get = b"GET /";
+    let mut args: HashMap<String, String> = HashMap::new();
     let (mut status_line,filename) = if buffer.starts_with(get) {
-        handle_get_request(buffer,&interpeters)
+        handle_get_request(buffer,&interpeters, &mut args)
     } else {
         ("HTTP/1.1 404 NOT FOUND".to_string(),"errors/404.html".to_string())
     };
-    let contents = interpeters.process(filename.clone());
+    let contents = interpeters.process(filename.clone(), &args);
     let final_content: String;
     match contents {
         Ok(data) => {
@@ -89,11 +91,15 @@ fn handle_connection(mut stream: TcpStream, interpeters: Arc<PreprocessorList>) 
     stream.flush().unwrap();
 }
 
-fn handle_get_request(buffer: [u8; 1024], interpeters: &Arc<PreprocessorList>) -> (String,String) {
+fn handle_get_request(buffer: [u8; 1024], interpeters: &Arc<PreprocessorList>,args: &mut HashMap<String,String>) -> (String,String) {
     let mut request_arr = buffer.split(|c| c == &b" "[0]);
     request_arr.next();
+    let (xpath,xpargs) = {
+        let mut a = request_arr.next().unwrap().split(|c| c == &b"?"[0]);
+        (a.next(),a.next())
+    };
     let path: String;
-    match request_arr.next() {
+    match xpath {
         Some(x) => {
             if x == b"/" {
                 path = "/index".to_string();
@@ -103,6 +109,11 @@ fn handle_get_request(buffer: [u8; 1024], interpeters: &Arc<PreprocessorList>) -
         },
         None => return ("HTTP/1.1 404 NOT FOUND".to_string(),"errors/404.html".to_string())
     }
+
+    if let Some(x) = xpargs {
+        handle_get_args(args,&String::from_utf8_lossy(x).to_string());
+    }
+
     let file_path = format!("public{}",path);
     let file_path_htm = format!("public{}.htm",path);
     let file_path_html = format!("public{}.html",path);
@@ -135,5 +146,15 @@ fn handle_get_request(buffer: [u8; 1024], interpeters: &Arc<PreprocessorList>) -
     } else {
         println!("404: {}", path);
         ("HTTP/1.1 404 NOT FOUND".to_string(),"errors/404.html".to_string())
+    }
+}
+
+fn handle_get_args(hash: &mut HashMap<String,String> , args: &String) {
+    let kv = args.split('&');
+    for k in kv {
+        let mut a = k.split('=');
+        let key = a.next().unwrap();
+        let value = a.next().unwrap_or("true");
+        hash.insert(key.to_string(), value.to_string());
     }
 }
