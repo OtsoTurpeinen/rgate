@@ -10,8 +10,8 @@ Preproc.toml is the meat of the operation. Only required field is the extension.
 * extension: what is the end of the file name that this applies to.
 * command: what is ran in your unix shell. defaults to `cat`
 * input_type: how the file is used by the command
-⋅⋅* "pipe": (default) equilevant of using ` < file.php` at the end of shell command.
-⋅⋅* "file":  equilevant of using ` file.php` at the end of shell command.
+  * "pipe": (default) equilevant of using ` < file.php` at the end of shell command.
+  * "file":  equilevant of using ` file.php` at the end of shell command.
 * priority: if there is conflict between preprocessors, one with lower number is selected. defaults to MAX `u16`
 
 ## Tested
