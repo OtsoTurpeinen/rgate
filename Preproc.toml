@@ -1,7 +1,9 @@
 [php]
 extension = ".php"
-command = "php"
-input_type = "pipe"
+command = "php --define display_errors=stderr"
+input_type = "file"
+arg_pass = "= "
+strict_error = 1
 priority = 4
 
 [txt]

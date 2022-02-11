@@ -28,12 +28,14 @@ fn main() {
         let element = preproc_setttings.get_table(key);
         match element {
             Ok(dat) => {
-                let ext = dat.get("extension").unwrap().clone().into_str().unwrap();
-                let cmd = dat.get("command").unwrap_or(&Value::from("cat".to_string())).clone().into_str().unwrap_or("cat".to_string());
-                let typ = dat.get("input_type").unwrap_or(&Value::from("pipe".to_string())).clone().into_str().unwrap_or("pipe".to_string());
-                let prio: u16 = preproc_setttings.get_int(format!("{}.priority",key).as_str()).unwrap_or(-1).try_into().unwrap_or(u16::MAX);
-                println!("added preprocessor for {ext} using \"{cmd}\" using {typ}, priority {prio}");
-                interpeters.add(ext,cmd,typ, prio);
+                let extension = dat.get("extension").unwrap().clone().into_str().unwrap();
+                let command = dat.get("command").unwrap_or(&Value::from("cat".to_string())).clone().into_str().unwrap_or("cat".to_string());
+                let method = dat.get("input_type").unwrap_or(&Value::from("pipe".to_string())).clone().into_str().unwrap_or("pipe".to_string());
+                let argpass = dat.get("arg_pass").unwrap_or(&Value::from("none".to_string())).clone().into_str().unwrap_or("none".to_string());
+                let priority: u16 = preproc_setttings.get_int(format!("{}.priority",key).as_str()).unwrap_or(-1).try_into().unwrap_or(u16::MAX);
+                let strict_error: u8 = preproc_setttings.get_int(format!("{}.strict_error",key).as_str()).unwrap_or(0).try_into().unwrap_or(0);
+                println!("added preprocessor for {extension} using \"{command}\" using {method} with argument pass of {argpass}, priority {priority}");
+                interpeters.add(extension,command,method, argpass, priority, strict_error);
             },
             _ => println!("funky error"),
         }
